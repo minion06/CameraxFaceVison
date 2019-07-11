@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "207509726909",
+    "firebase_url": "https://cameravx-52f4c.firebaseio.com",
+    "project_id": "cameravx-52f4c",
+    "storage_bucket": "cameravx-52f4c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:207509726909:android:e28a924c316830b6",
+        "android_client_info": {
+          "package_name": "com.augray.cameravx"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "207509726909-knghvko3atovgo2r3jhp78u9thn6o4ts.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.augray.cameravx",
+            "certificate_hash": "6b7f165bb02d8c72418d882f4d879e6f23329c4e"
+          }
+        },
+        {
+          "client_id": "207509726909-j1q6astnkkl7nhboagg924f4l3sikau0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwHhtvH0KVRsWU-Rji8MDHg3DCtS5xJ5E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "207509726909-j1q6astnkkl7nhboagg924f4l3sikau0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

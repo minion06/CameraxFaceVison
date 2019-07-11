@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/takeAPicLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white">
+
+    <ImageView android:id="@+id/takeAPicVideoView"
+               android:visibility="visible"
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:src="@drawable/camera_guide"
+               android:layout_centerVertical="true"
+               android:layout_centerHorizontal="true">
+    </ImageView>
+
+    <Button
+            android:id="@+id/skipVideo"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="18dp"
+            android:background="@drawable/circular_border_red_fill"
+            android:text="@string/txtDone"
+            android:textAllCaps="false"
+            android:textColor="@color/white"/>
+
+
+</RelativeLayout>
