@@ -664,4 +664,8 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
             return true
         }
     }
+
+    fun onHeaderBackClick(view: View) {
+        finish()
+    }
 }
