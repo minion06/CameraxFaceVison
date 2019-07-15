@@ -4,8 +4,10 @@ import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.system.Os.bind
 import android.view.View
 import android.widget.TextView
+import androidx.fragment.app.FragmentActivity
 import com.augray.visionx.Cameravx
 import com.augray.visionx.bind
 import kotlinx.android.synthetic.main.activity_main.*
