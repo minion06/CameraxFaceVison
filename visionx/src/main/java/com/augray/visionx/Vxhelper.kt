@@ -3,6 +3,7 @@ package com.augray.visionx
 object Vxhelper {
     const val IS_BACK_CAMERA_ENABLED = "isBackCameraEnabled"
     const val IS_FACE_OVERLAY_ENABLED = "isFaceOverlayEnabled"
+    const val IS_APPLYING_CROPPER ="isApplyingCropping"
     const val CAMERA_PERMISSION_REQUEST_CODE = 900
     const val STORAGE_PERMISSION_REQUEST_CODE = 901
     const val PICK_IMAGE_REQUEST = 910
