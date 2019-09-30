@@ -43,14 +43,11 @@ import com.augray.visionx.Vxhelper.IMAGE_NAME
 import com.augray.visionx.Vxhelper.IMAGE_REQUIRED_HEIGHT
 import com.augray.visionx.Vxhelper.IMAGE_REQUIRED_WIDTH
 import com.augray.visionx.Vxhelper.IMMERSIVE_FLAG_TIMEOUT
-import com.augray.visionx.Vxhelper.IS_APPLYING_CROPPER
 import com.augray.visionx.Vxhelper.IS_BACK_CAMERA_ENABLED
 import com.augray.visionx.Vxhelper.IS_FACE_OVERLAY_ENABLED
 import com.augray.visionx.Vxhelper.PICK_IMAGE_REQUEST
 import com.augray.visionx.Vxhelper.STORAGE_PERMISSION_REQUEST_CODE
 import com.augray.visionx.bind
-import com.augray.visionx.cropper.CropImage
-import com.augray.visionx.cropper.CropImageView
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.vision.Frame
 import com.google.android.gms.vision.face.Face
@@ -59,6 +56,8 @@ import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions
+import com.theartofdev.edmodo.cropper.CropImage
+import com.theartofdev.edmodo.cropper.CropImageView
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -90,7 +89,6 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
     private val topLayout by bind<RelativeLayout>(R.id.topLayout)
 
     private var imageDirectory: String? = null
-    private var isApplyCropper : Boolean =false
     private var imageName:String? = null
     /** Internal reference of the [DisplayManager] */
     private lateinit var displayManager: DisplayManager
@@ -118,7 +116,6 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
             //storageMode = intent.extras!!.getInt(AppConstants.STORAGE_MODE_INTENT_STRING)
             disableBackForCamera = intent.extras!!.getBoolean(IS_BACK_CAMERA_ENABLED,false)
             imageDirectory = intent!!.extras!!.getString(IMAGE_DIRECTORY)
-            isApplyCropper = intent!!.extras!!.getBoolean(IS_APPLYING_CROPPER, false)
             imageName = intent!!.extras!!.getString(IMAGE_NAME)
            // isRectangleCropNeeded = intent.extras!!.getBoolean(AppConstants.RECTANGLE_CROP_REQUIRED_CODE, false)
            // isNavigateBack = intent.extras!!.getBoolean(AppConstants.NAVIGATE_BCK, false)
@@ -621,16 +618,11 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
 
     fun sendResultToActivity(source: String) {
         runOnUiThread {
-            if(isApplyCropper){
-                val uri = Uri.parse(source)
-                callImageCropping(uri, isRectangleCropNeeded)
-            }else {
-                val data = Intent()
-                data.putExtra(IMAGE_SOURCE, source)
-                data.putExtra(IMAGE_PATH, fileUserPhoto!!.absolutePath)
-                setResult(Activity.RESULT_OK, data)
-                finish()
-            }
+            val data = Intent()
+            data.putExtra(IMAGE_SOURCE, source)
+            data.putExtra(IMAGE_PATH,fileUserPhoto!!.absolutePath)
+            setResult(Activity.RESULT_OK, data)
+            finish()
         }
     }
     fun getResizedBitmap(bitmap: Bitmap, newWidth: Int, newHeight: Int): Bitmap {
@@ -650,8 +642,7 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
 
         return resizedBitmap
     }
-
-    private fun validateFacesOnSelectedImage(context: Context, croppedBitmap: Bitmap): Boolean {
+    fun validateFacesOnSelectedImage(context: Context, croppedBitmap: Bitmap): Boolean {
         val detector = FaceDetector.Builder(context)
             .setTrackingEnabled(false)
             .setLandmarkType(FaceDetector.ALL_LANDMARKS)

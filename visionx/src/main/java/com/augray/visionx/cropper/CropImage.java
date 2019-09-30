@@ -47,9 +47,9 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import com.augray.visionx.R;
-import com.theartofdev.edmodo.cropper.CropImageActivity;
-import com.theartofdev.edmodo.cropper.CropImageOptions;
-import com.theartofdev.edmodo.cropper.CropImageView;
+//import com.theartofdev.edmodo.cropper.CropImageActivity;
+//import com.theartofdev.edmodo.cropper.CropImageOptions;
+//import com.theartofdev.edmodo.cropper.CropImageView;
 
 /**
  * Helper to simplify crop image work like starting pick-image acitvity and handling camera/gallery
