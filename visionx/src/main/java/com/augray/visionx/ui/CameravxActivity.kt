@@ -339,11 +339,20 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
     /** Define callback that will be triggered after a photo has been taken and saved to disk */
     private val imageSavedListener = object : ImageCapture.OnImageSavedListener {
         override fun onError(
+            imageCaptureError: ImageCapture.ImageCaptureError,
+            message: String,
+            cause: Throwable?
+        ) {
+            Log.e(APP_TAG, "Photo capture failed: $message")
+            cause?.printStackTrace()
+        }
+
+       /* override fun onError(
             error: ImageCapture.UseCaseError, message: String, exc: Throwable?
         ) {
             Log.e(APP_TAG, "Photo capture failed: $message")
             exc?.printStackTrace()
-        }
+        }*/
 
         override fun onImageSaved(photoFile: File) {
             val width: Int = IMAGE_REQUIRED_WIDTH
@@ -410,6 +419,8 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
                 y.buffer.get(data, 0, Yb)
                 u.buffer.get(data, Yb, Ub)
                 v.buffer.get(data, Yb + Ub, Vb)
+
+                Log.d("GooglyFaceTracker", " faces ${image.height} + ${image.width}");
                 val metadata = FirebaseVisionImageMetadata.Builder()
                     .setFormat(FirebaseVisionImageMetadata.IMAGE_FORMAT_NV21)
                     .setHeight(image.height)
@@ -424,7 +435,7 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
                         // ....
                         if (faces.size <= 0) {
                             listener.invoke(false)
-                            Log.d("GooglyFaceTracker", " false");
+                            Log.d("GooglyFaceTracker", " faces ${faces.size}");
 
                         } else {
                             for (face in faces) {
@@ -432,6 +443,7 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
                                 val smiling = face!!.smilingProbability
                                 val eulerZAngle = face.headEulerAngleZ
                                 val eulerYAngle = face.headEulerAngleY
+                                Log.d("GooglyFaceTracker" ,"face available")
                                 Log.d("GooglyFaceTracker", "is Smiling $smiling eulerZAngle $eulerZAngle eulerYAngle $eulerYAngle");
                                 if (eulerYAngle >= EULERY_ANGLE_NEGATIVE_CONSTANT && eulerYAngle <= EULERY_ANGLE_POSITIVE_CONSTANT) {
                                     Log.d("GooglyFaceTracker", " true");
@@ -441,7 +453,7 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
                                     //faceRecognisationListner.onFaceDeducted(false);
                                 } else {
                                     listener.invoke(false)
-                                    Log.d("GooglyFaceTracker", "false");
+                                    Log.d("GooglyFaceTracker", "false no face");
                                     // faceRecognisationListner.onFaceDeducted(true);
                                 }
 
@@ -453,6 +465,7 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
                             override fun onFailure(e: java.lang.Exception) {
                                 // Task failed with an exception
                                 // ...
+                                Log.d("GooglyFaceTracker ", "onFailure $e");
                                 listener.invoke(false)
                             }
                         })
