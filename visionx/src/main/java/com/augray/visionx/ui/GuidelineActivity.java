@@ -8,7 +8,6 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import com.augray.visionx.R;
 
-
 public class GuidelineActivity extends Activity {
     private RelativeLayout takePicLayout;
     @Override

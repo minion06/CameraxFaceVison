@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         if(requestCode == Cameravx.CAMERAVX_LAUNCH_REQUEST){
             if(resultCode == Activity.RESULT_OK){
                 val path = data!!.getStringExtra(Cameravx.IMAGE_PATH)
-                txtView.setText(path.toString()!!)
+                txtView.setText(path.toString())
             }
         }
     }

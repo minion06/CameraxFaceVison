@@ -35,8 +35,6 @@ import com.augray.visionx.FLAGS_FULLSCREEN
 import com.augray.visionx.R
 import com.augray.visionx.Vxhelper.CAMERA
 import com.augray.visionx.Vxhelper.CAMERA_PERMISSION_REQUEST_CODE
-import com.augray.visionx.Vxhelper.EULERY_ANGLE_NEGATIVE_CONSTANT
-import com.augray.visionx.Vxhelper.EULERY_ANGLE_POSITIVE_CONSTANT
 import com.augray.visionx.Vxhelper.EULER_ANGLE_NEGATIVE_CONSTANT
 import com.augray.visionx.Vxhelper.EULER_ANGLE_POSITIVE_CONSTANT
 import com.augray.visionx.Vxhelper.GALLERY
@@ -45,11 +43,14 @@ import com.augray.visionx.Vxhelper.IMAGE_NAME
 import com.augray.visionx.Vxhelper.IMAGE_REQUIRED_HEIGHT
 import com.augray.visionx.Vxhelper.IMAGE_REQUIRED_WIDTH
 import com.augray.visionx.Vxhelper.IMMERSIVE_FLAG_TIMEOUT
+import com.augray.visionx.Vxhelper.IS_APPLYING_CROPPER
 import com.augray.visionx.Vxhelper.IS_BACK_CAMERA_ENABLED
 import com.augray.visionx.Vxhelper.IS_FACE_OVERLAY_ENABLED
 import com.augray.visionx.Vxhelper.PICK_IMAGE_REQUEST
 import com.augray.visionx.Vxhelper.STORAGE_PERMISSION_REQUEST_CODE
 import com.augray.visionx.bind
+import com.augray.visionx.cropper.CropImage
+import com.augray.visionx.cropper.CropImageView
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.vision.Frame
 import com.google.android.gms.vision.face.Face
@@ -58,8 +59,6 @@ import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions
-import com.theartofdev.edmodo.cropper.CropImage
-import com.theartofdev.edmodo.cropper.CropImageView
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -91,6 +90,7 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
     private val topLayout by bind<RelativeLayout>(R.id.topLayout)
 
     private var imageDirectory: String? = null
+    private var isApplyCropper : Boolean =false
     private var imageName:String? = null
     /** Internal reference of the [DisplayManager] */
     private lateinit var displayManager: DisplayManager
@@ -118,6 +118,7 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
             //storageMode = intent.extras!!.getInt(AppConstants.STORAGE_MODE_INTENT_STRING)
             disableBackForCamera = intent.extras!!.getBoolean(IS_BACK_CAMERA_ENABLED,false)
             imageDirectory = intent!!.extras!!.getString(IMAGE_DIRECTORY)
+            isApplyCropper = intent!!.extras!!.getBoolean(IS_APPLYING_CROPPER, false)
             imageName = intent!!.extras!!.getString(IMAGE_NAME)
            // isRectangleCropNeeded = intent.extras!!.getBoolean(AppConstants.RECTANGLE_CROP_REQUIRED_CODE, false)
            // isNavigateBack = intent.extras!!.getBoolean(AppConstants.NAVIGATE_BCK, false)
@@ -213,7 +214,7 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
                     imageCapture!!.takePicture(fileUserPhoto, imageSavedListener)
                 }
             }
-            flipButton.setOnClickListener() {
+            flipButton.setOnClickListener {
                 mIsFrontFacing = !mIsFrontFacing
                 lensFacing = if (CameraX.LensFacing.FRONT == lensFacing) {
                     CameraX.LensFacing.BACK
@@ -410,8 +411,8 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
                 TimeUnit.SECONDS.toMillis(1)) {
                 lastAnalyzedTimestamp = currentTimestamp
                 val y = image!!.planes[0]
-                val u = image!!.planes[1]
-                val v = image!!.planes[2]
+                val u = image.planes[1]
+                val v = image.planes[2]
                 val Yb = y.buffer.remaining()
                 val Ub = u.buffer.remaining()
                 val Vb = v.buffer.remaining()
@@ -419,8 +420,6 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
                 y.buffer.get(data, 0, Yb)
                 u.buffer.get(data, Yb, Ub)
                 v.buffer.get(data, Yb + Ub, Vb)
-
-                Log.d("GooglyFaceTracker", " faces ${image.height} + ${image.width}");
                 val metadata = FirebaseVisionImageMetadata.Builder()
                     .setFormat(FirebaseVisionImageMetadata.IMAGE_FORMAT_NV21)
                     .setHeight(image.height)
@@ -428,7 +427,7 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
                     .setRotation(getRotation(rotationDegrees))
                     .build()
                 val visionImage = FirebaseVisionImage.fromByteArray(data, metadata)
-                val detector = FirebaseVision.getInstance().getVisionFaceDetector(highAccuracyOpts);
+                val detector = FirebaseVision.getInstance().getVisionFaceDetector(highAccuracyOpts)
                 detector.detectInImage(visionImage)
                     .addOnSuccessListener { faces ->
                         // Task completed successfully
@@ -439,14 +438,15 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
 
                         } else {
                             for (face in faces) {
-                                val bounds = face.boundingBox
+                                face.boundingBox
                                 val smiling = face!!.smilingProbability
                                 val eulerZAngle = face.headEulerAngleZ
                                 val eulerYAngle = face.headEulerAngleY
                                 Log.d("GooglyFaceTracker" ,"face available")
-                                Log.d("GooglyFaceTracker", "is Smiling $smiling eulerZAngle $eulerZAngle eulerYAngle $eulerYAngle");
-                                if (eulerYAngle >= EULERY_ANGLE_NEGATIVE_CONSTANT && eulerYAngle <= EULERY_ANGLE_POSITIVE_CONSTANT) {
-                                    Log.d("GooglyFaceTracker", " true");
+
+                                Log.d("GooglyFaceTracker", "is Smiling $smiling eulerZAngle $eulerZAngle eulerYAngle $eulerYAngle")
+                                if (eulerYAngle in -12.0..12.0) {
+                                    Log.d("GooglyFaceTracker", " true")
                                     listener.invoke(true)
 
                                     //listener(false)
@@ -621,11 +621,16 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
 
     fun sendResultToActivity(source: String) {
         runOnUiThread {
-            val data = Intent()
-            data.putExtra(IMAGE_SOURCE, source)
-            data.putExtra(IMAGE_PATH,fileUserPhoto!!.absolutePath)
-            setResult(Activity.RESULT_OK, data)
-            finish()
+            if(isApplyCropper){
+                val uri = Uri.parse(source)
+                callImageCropping(uri, isRectangleCropNeeded)
+            }else {
+                val data = Intent()
+                data.putExtra(IMAGE_SOURCE, source)
+                data.putExtra(IMAGE_PATH, fileUserPhoto!!.absolutePath)
+                setResult(Activity.RESULT_OK, data)
+                finish()
+            }
         }
     }
     fun getResizedBitmap(bitmap: Bitmap, newWidth: Int, newHeight: Int): Bitmap {
@@ -645,7 +650,8 @@ class CameravxActivity: AppCompatActivity(), LifecycleOwner {
 
         return resizedBitmap
     }
-    fun validateFacesOnSelectedImage(context: Context, croppedBitmap: Bitmap): Boolean {
+
+    private fun validateFacesOnSelectedImage(context: Context, croppedBitmap: Bitmap): Boolean {
         val detector = FaceDetector.Builder(context)
             .setTrackingEnabled(false)
             .setLandmarkType(FaceDetector.ALL_LANDMARKS)
